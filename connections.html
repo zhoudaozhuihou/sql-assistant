@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库连接管理 - SQL优化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-10 w-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-white">storage</span>
+                        </div>
+                        <span class="ml-3 text-xl font-bold text-gray-900">SQL优化平台</span>
+                    </div>
+                    <div class="hidden md:ml-10 md:flex md:space-x-4">
+                        <a href="dashboard.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 text-sm font-medium transition">工作台</a>
+                        <a href="history.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 text-sm font-medium transition">历史记录</a>
+                        <a href="connections.html" class="text-purple-600 border-b-2 border-purple-600 px-3 py-2 text-sm font-medium">连接管理</a>
+                        <a href="analysis.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 text-sm font-medium transition">性能分析</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                        返回工作台
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 页面标题 -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">数据库连接管理</h1>
+                <p class="text-sm text-gray-500 mt-1">配置和管理您的数据库连接</p>
+            </div>
+            <button onclick="document.getElementById('new-connection-modal').classList.remove('hidden')" 
+                    class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition flex items-center space-x-2">
+                <span class="material-icons text-sm">add</span>
+                <span>新建连接</span>
+            </button>
+        </div>
+
+        <!-- 连接列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- 连接卡片 1 -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-green-200">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-blue-600 text-2xl">storage</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">MySQL - Production</h3>
+                                <p class="text-sm text-gray-500">主生产数据库</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center space-x-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span>已连接</span>
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">computer</span>
+                            <span>192.168.1.100:3306</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">database</span>
+                            <span>production_db</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">person</span>
+                            <span>admin_user</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 pt-4 border-t border-gray-200">
+                        <button class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm">
+                            测试连接
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">edit</span>
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 连接卡片 2 -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-green-200">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-purple-600 text-2xl">storage</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">PostgreSQL - Dev</h3>
+                                <p class="text-sm text-gray-500">开发环境</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center space-x-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span>已连接</span>
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">computer</span>
+                            <span>192.168.1.101:5432</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">database</span>
+                            <span>dev_db</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">person</span>
+                            <span>dev_user</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 pt-4 border-t border-gray-200">
+                        <button class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm">
+                            测试连接
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">edit</span>
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 连接卡片 3 -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-green-200">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-orange-600 text-2xl">storage</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">Oracle - Test</h3>
+                                <p class="text-sm text-gray-500">测试环境</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium flex items-center space-x-1">
+                            <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                            <span>已连接</span>
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">computer</span>
+                            <span>192.168.1.102:1521</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">database</span>
+                            <span>orcl</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-600">
+                            <span class="material-icons text-xs mr-2">person</span>
+                            <span>test_user</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 pt-4 border-t border-gray-200">
+                        <button class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition text-sm">
+                            测试连接
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">edit</span>
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 连接卡片 4 - 未连接 -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-2 border-gray-200 opacity-75">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                                <span class="material-icons text-gray-400 text-2xl">storage</span>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">SQL Server - Backup</h3>
+                                <p class="text-sm text-gray-500">备份服务器</p>
+                            </div>
+                        </div>
+                        <span class="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium flex items-center space-x-1">
+                            <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                            <span>未连接</span>
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-icons text-xs mr-2">computer</span>
+                            <span>192.168.1.103:1433</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-icons text-xs mr-2">database</span>
+                            <span>backup_db</span>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-400">
+                            <span class="material-icons text-xs mr-2">person</span>
+                            <span>backup_user</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2 pt-4 border-t border-gray-200">
+                        <button class="flex-1 px-4 py-2 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed text-sm">
+                            测试连接
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">edit</span>
+                        </button>
+                        <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                            <span class="material-icons text-sm">delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建连接模态框 -->
+    <div id="new-connection-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="text-xl font-semibold text-gray-900">新建数据库连接</h2>
+                <button onclick="document.getElementById('new-connection-modal').classList.add('hidden')" 
+                        class="text-gray-400 hover:text-gray-600 transition">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- 连接名称 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">连接名称</label>
+                    <input type="text" placeholder="例如: MySQL - Production" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <!-- 数据库类型 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">数据库类型</label>
+                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option>MySQL</option>
+                        <option>PostgreSQL</option>
+                        <option>Oracle</option>
+                        <option>SQL Server</option>
+                        <option>SQLite</option>
+                        <option>MongoDB</option>
+                    </select>
+                </div>
+
+                <!-- 主机地址 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">主机地址</label>
+                        <input type="text" placeholder="192.168.1.100" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">端口</label>
+                        <input type="number" placeholder="3306" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <!-- 数据库名称 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">数据库名称</label>
+                    <input type="text" placeholder="database_name" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+
+                <!-- 用户名和密码 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">用户名</label>
+                        <input type="text" placeholder="username" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">密码</label>
+                        <input type="password" placeholder="password" 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                </div>
+
+                <!-- 描述 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">描述（可选）</label>
+                    <textarea rows="3" placeholder="连接描述..." 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+
+                <!-- 高级选项 -->
+                <div class="border-t border-gray-200 pt-4">
+                    <button class="flex items-center text-sm text-purple-600 hover:text-purple-700 font-medium">
+                        <span class="material-icons text-sm mr-1">expand_more</span>
+                        高级选项
+                    </button>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="document.getElementById('new-connection-modal').classList.add('hidden')" 
+                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                    取消
+                </button>
+                <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                    测试并保存
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

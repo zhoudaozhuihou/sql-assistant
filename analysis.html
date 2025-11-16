@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性能分析 - SQL优化平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .code-font { font-family: 'Fira Code', monospace; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <div class="h-10 w-10 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                            <span class="material-icons text-white">storage</span>
+                        </div>
+                        <span class="ml-3 text-xl font-bold text-gray-900">SQL优化平台</span>
+                    </div>
+                    <div class="hidden md:ml-10 md:flex md:space-x-4">
+                        <a href="dashboard.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 text-sm font-medium transition">工作台</a>
+                        <a href="history.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 text-sm font-medium transition">历史记录</a>
+                        <a href="connections.html" class="text-gray-700 hover:text-purple-600 px-3 py-2 text-sm font-medium transition">连接管理</a>
+                        <a href="analysis.html" class="text-purple-600 border-b-2 border-purple-600 px-3 py-2 text-sm font-medium">性能分析</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="results.html" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                        查看结果
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 查询信息 -->
+        <div class="bg-white rounded-lg shadow-lg mb-6 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">查询性能分析</h2>
+                    <p class="text-sm text-gray-500 mt-1">查询ID: #2024-03-15-142530</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">执行成功</span>
+                    <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                        <span class="material-icons text-sm">refresh</span>
+                    </button>
+                </div>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4 code-font text-sm overflow-x-auto">
+                <code class="text-gray-800">SELECT u.id, u.username, u.email, COUNT(o.id) as order_count, SUM(o.total_amount) as total_spent FROM users u LEFT JOIN orders o ON u.id = o.user_id WHERE u.created_at >= '2024-01-01' GROUP BY u.id, u.username, u.email HAVING total_spent > 1000 ORDER BY total_spent DESC LIMIT 100;</code>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 主要分析内容 -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- 执行计划树 -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-gray-900">执行计划</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- 执行计划节点 -->
+                            <div class="border-l-4 border-purple-500 pl-4 py-2 bg-purple-50 rounded-r-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">SELECT</p>
+                                        <p class="text-sm text-gray-600">成本: 1245.32 | 行数: 100</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">100%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="ml-8 border-l-4 border-blue-500 pl-4 py-2 bg-blue-50 rounded-r-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">JOIN (LEFT)</p>
+                                        <p class="text-sm text-gray-600">成本: 856.45 | 行数: 1,247</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">68.8%</span>
+                                </div>
+                            </div>
+
+                            <div class="ml-16 border-l-4 border-green-500 pl-4 py-2 bg-green-50 rounded-r-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">INDEX SCAN (users.idx_created_at)</p>
+                                        <p class="text-sm text-gray-600">成本: 234.12 | 行数: 856</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">18.8%</span>
+                                </div>
+                            </div>
+
+                            <div class="ml-16 border-l-4 border-orange-500 pl-4 py-2 bg-orange-50 rounded-r-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">INDEX LOOKUP (orders.user_id)</p>
+                                        <p class="text-sm text-gray-600">成本: 622.33 | 行数: 1,391</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">50.0%</span>
+                                </div>
+                            </div>
+
+                            <div class="ml-8 border-l-4 border-yellow-500 pl-4 py-2 bg-yellow-50 rounded-r-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">GROUP BY & HAVING</p>
+                                        <p class="text-sm text-gray-600">成本: 245.67 | 行数: 356</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">19.7%</span>
+                                </div>
+                            </div>
+
+                            <div class="ml-8 border-l-4 border-indigo-500 pl-4 py-2 bg-indigo-50 rounded-r-lg">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="font-semibold text-gray-900">ORDER BY & LIMIT</p>
+                                        <p class="text-sm text-gray-600">成本: 143.20 | 行数: 100</p>
+                                    </div>
+                                    <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">11.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 性能指标图表 -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-gray-900">性能指标</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-6">
+                            <!-- CPU使用率 -->
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">CPU使用率</span>
+                                    <span class="text-sm font-semibold text-gray-900">68%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-blue-500 h-3 rounded-full transition-all" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- 内存使用 -->
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">内存使用</span>
+                                    <span class="text-sm font-semibold text-gray-900">156 MB / 240 MB</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-green-500 h-3 rounded-full transition-all" style="width: 65%"></div>
+                                </div>
+                            </div>
+
+                            <!-- I/O操作 -->
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">磁盘I/O</span>
+                                    <span class="text-sm font-semibold text-gray-900">45 MB/s</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-orange-500 h-3 rounded-full transition-all" style="width: 45%"></div>
+                                </div>
+                            </div>
+
+                            <!-- 网络传输 -->
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="text-sm font-medium text-gray-700">网络传输</span>
+                                    <span class="text-sm font-semibold text-gray-900">2.3 MB</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-3">
+                                    <div class="bg-purple-500 h-3 rounded-full transition-all" style="width: 30%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 优化建议 -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-gray-900">优化建议</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg">
+                            <div class="flex items-start">
+                                <span class="material-icons text-yellow-600 mr-3">warning</span>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-yellow-900 mb-1">建议添加复合索引</p>
+                                    <p class="text-sm text-yellow-800 mb-2">在 orders 表的 (user_id, total_amount) 上创建复合索引可以显著提升JOIN和聚合操作的性能。</p>
+                                    <code class="block bg-yellow-100 p-2 rounded text-xs code-font mt-2">CREATE INDEX idx_user_total ON orders(user_id, total_amount);</code>
+                                    <p class="text-xs text-yellow-700 mt-2">预期性能提升: 约 35%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-blue-50 border-l-4 border-blue-400 rounded-lg">
+                            <div class="flex items-start">
+                                <span class="material-icons text-blue-600 mr-3">info</span>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-blue-900 mb-1">考虑使用物化视图</p>
+                                    <p class="text-sm text-blue-800 mb-2">如果此查询经常执行，可以考虑创建物化视图来缓存结果，减少计算开销。</p>
+                                    <p class="text-xs text-blue-700 mt-2">预期性能提升: 约 60-80%</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="p-4 bg-green-50 border-l-4 border-green-400 rounded-lg">
+                            <div class="flex items-start">
+                                <span class="material-icons text-green-600 mr-3">check_circle</span>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-green-900 mb-1">查询已优化良好</p>
+                                    <p class="text-sm text-green-800 mb-2">WHERE 子句已正确使用索引，GROUP BY 和 HAVING 子句的执行顺序合理。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 侧边栏 -->
+            <div class="space-y-6">
+                <!-- 执行统计 -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-gray-900">执行统计</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">总执行时间</p>
+                            <p class="text-2xl font-bold text-gray-900">1.245s</p>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <p class="text-xs text-gray-500 mb-1">返回行数</p>
+                            <p class="text-xl font-semibold text-gray-900">100</p>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <p class="text-xs text-gray-500 mb-1">扫描行数</p>
+                            <p class="text-xl font-semibold text-gray-900">2,543</p>
+                        </div>
+                        <div class="border-t border-gray-200 pt-4">
+                            <p class="text-xs text-gray-500 mb-1">索引命中率</p>
+                            <p class="text-xl font-semibold text-green-600">92%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 表使用情况 -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-gray-900">表使用情况</h3>
+                    </div>
+                    <div class="p-6 space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900">users</p>
+                                <p class="text-xs text-gray-500">扫描: 856 行</p>
+                            </div>
+                            <span class="material-icons text-green-500">check_circle</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <p class="font-medium text-gray-900">orders</p>
+                                <p class="text-xs text-gray-500">扫描: 1,391 行</p>
+                            </div>
+                            <span class="material-icons text-green-500">check_circle</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 索引使用情况 -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <h3 class="text-lg font-semibold text-gray-900">索引使用</h3>
+                    </div>
+                    <div class="p-6 space-y-3">
+                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="font-medium text-green-900 text-sm">users.idx_created_at</p>
+                            <p class="text-xs text-green-700 mt-1">命中次数: 856</p>
+                        </div>
+                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <p class="font-medium text-green-900 text-sm">orders.idx_user_id</p>
+                            <p class="text-xs text-green-700 mt-1">命中次数: 1,391</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
